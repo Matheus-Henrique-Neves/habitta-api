@@ -4,10 +4,24 @@ import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', async (_req: Request, res: Response): Promise<void> => {
+router.get('/', async (req: Request, res: Response): Promise<void> => {
     try {
-        const properties = await Property.find().sort({ createdAt: -1 });
-        res.json(properties);
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(20, Math.max(1, parseInt(req.query.limit as string) || 10));
+        const skip = (page - 1) * limit;
+
+        const [properties, total] = await Promise.all([
+            Property.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+            Property.countDocuments(),
+        ]);
+
+        res.json({
+            properties,
+            page,
+            limit,
+            total,
+            hasMore: skip + properties.length < total,
+        });
     } catch {
         res.status(500).json({ error: 'Erro ao buscar imoveis' });
     }
