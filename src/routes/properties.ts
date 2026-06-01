@@ -27,6 +27,17 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     }
 });
 
+router.get('/mine', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const properties = await Property.find({
+            $or: [{ owner: req.userEmail }, { owner: req.uid }],
+        }).sort({ createdAt: -1 });
+        res.json({ properties });
+    } catch {
+        res.status(500).json({ error: 'Erro ao buscar seus imoveis' });
+    }
+});
+
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
     try {
         const property = await Property.findById(req.params.id);
