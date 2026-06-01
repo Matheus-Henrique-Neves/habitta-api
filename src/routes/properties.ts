@@ -77,6 +77,36 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response): Promise<v
     }
 });
 
+router.put('/:id', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const property = await Property.findById(req.params.id);
+        if (!property) {
+            res.status(404).json({ error: 'Imovel nao encontrado' });
+            return;
+        }
+        if (property.owner !== req.userEmail && property.owner !== req.uid) {
+            res.status(403).json({ error: 'Sem permissao para editar este imovel' });
+            return;
+        }
+
+        const campos = ['title', 'address', 'price', 'area', 'bedrooms', 'bathrooms', 'garages', 'description', 'transactionType', 'image_url', 'photos', 'contactEmail', 'contactPhone'];
+        for (const campo of campos) {
+            if (req.body[campo] !== undefined) {
+                (property as unknown as Record<string, unknown>)[campo] = req.body[campo];
+            }
+        }
+
+        const atualizado = await property.save();
+        res.json(atualizado);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            res.status(400).json({ error: err.message });
+        } else {
+            res.status(400).json({ error: 'ID invalido' });
+        }
+    }
+});
+
 router.delete('/:id', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const property = await Property.findById(req.params.id);
