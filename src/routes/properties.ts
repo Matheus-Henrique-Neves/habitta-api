@@ -42,7 +42,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
 
 router.post('/', requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { title, address, price, area, bedrooms, bathrooms, garages, description, transactionType, image_url, photos } = req.body;
+        const { title, address, price, area, bedrooms, bathrooms, garages, description, transactionType, image_url, photos, contactEmail, contactPhone } = req.body;
 
         if (!title || !address || price === undefined || !transactionType) {
             res.status(400).json({ error: 'Campos obrigatorios: title, address, price, transactionType' });
@@ -62,6 +62,8 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response): Promise<v
             image_url: image_url || '',
             photos: photos || [],
             owner: req.userEmail || req.uid || '',
+            contactEmail: contactEmail || req.userEmail || '',
+            contactPhone: contactPhone || '',
         });
 
         const saved = await property.save();

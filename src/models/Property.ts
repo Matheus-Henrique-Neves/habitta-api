@@ -13,6 +13,8 @@ export interface IProperty extends Document {
     image_url: string;
     photos: string[];
     owner: string;
+    contactEmail: string;
+    contactPhone: string;
     createdAt: Date;
 }
 
@@ -30,6 +32,8 @@ const PropertySchema = new Schema<IProperty>(
         image_url:       { type: String, default: '' },
         photos:          { type: [String], default: [] },
         owner:           { type: String, required: true },
+        contactEmail:    { type: String, default: '' },
+        contactPhone:    { type: String, default: '' },
     },
     { timestamps: true }
 );
